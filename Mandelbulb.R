@@ -7,10 +7,17 @@ enableJIT(3)
 library(abind)
 library(doParallel)
 library(parallel)
-registerDoParallel(4)
+registerDoParallel(8)
 getDoParWorkers()
 setwd("D:/HypercomplexFractal")
-zbase <- ybase <- xbase <- seq(from=-2,to=2,by=.2)# LOL
+#install.packages("plot3D")
+#install.packages("misc3d")
+library(plot3D)
+library(misc3d)
+
+
+
+zbase <- ybase <- xbase <- seq(from=-2,to=2,by=.02)# LOL
 #http://www.bugman123.com/Hypercomplex/index.html
 HC_power<-function(x,n){
   r = sqrt(sum(x^2))
@@ -36,16 +43,11 @@ escape_General_Mandelbulb = function(x,n=2,maxIter = 200){
 
   return(maxIter+1)
 }
-escape_General_Mandelbulb(c(0,.1,.2))
-
-
-
+#escape_General_Mandelbulb(c(0,.1,.2))
 
 system.time({
-  
-n = 2
-
-
+n=2
+maxIter=200
 volumetric = list()
 for(iz in seq_along(zbase)){
   z = zbase[iz]
@@ -72,12 +74,33 @@ system.time({
 })
 
 
-#install.packages("plot3D")
-#install.packages("misc3d")
-library(plot3D)
-library(misc3d)
-png("Mandelbulb.png")
-isosurf3D(x=xbase,y=ybase,z=zbase, colvar = volumetric, level = c(10,20,200),
-             col = c("red", "blue", "yellow"),
-             clab = "No. of Iterations", alpha = 0.4, plot = TRUE)
-dev.off()
+system.time({
+  png("Mandelbulb.png",width = 1600,height=900)
+  isosurf3D(x=xbase,y=ybase,z=zbase, colvar = volumetric, level = 200,
+            col ="blue",
+            clab = "No. of Iterations",plot = TRUE)
+  dev.off()
+  
+})
+
+system.time({
+  png("Mandelbulb2.png",width = 1600,height=900)
+  isosurf3D(x=xbase,y=ybase,z=zbase, colvar = volumetric, level = c(2,100,200),
+            col = c("red", "blue", "yellow"),
+            clab = "No. of Iterations", lighting = TRUE,shade = .6,alpha = 0.4, plot = TRUE)
+  dev.off()
+  
+})
+
+system.time({
+  png("Mandelbulb3.png",width = 1600,height=900)
+  isosurf3D(x=xbase,y=ybase,z=zbase, colvar = log10(volumetric), level = log10(maxIter),
+            col ="yellow",
+            clab = "lg(No. of Iterations)", lighting = TRUE,shade = .6,alpha = .2, plot = FALSE)
+  
+  isosurf3D(x=xbase,y=ybase,z=zbase, colvar = log10(volumetric), level = (1:2)/3*log10(maxIter),
+            col =c("red", "blue"),
+            clab = "lg(No. of Iterations)", lighting = TRUE,shade = .6,alpha = .2, plot = TRUE,add = TRUE)
+  dev.off()
+  
+})
